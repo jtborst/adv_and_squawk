@@ -15,16 +15,19 @@
 */
 package android.example.com.squawker.following;
 
+import android.content.SharedPreferences;
 import android.example.com.squawker.R;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceFragmentCompat;
+
+import com.google.firebase.messaging.FirebaseMessaging;
 
 
 /**
  * Shows the list of instructors you can follow
  */
 // TODO (1) Implement onSharedPreferenceChangeListener
-public class FollowingPreferenceFragment extends PreferenceFragmentCompat {
+public class FollowingPreferenceFragment extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private final static String LOG_TAG = FollowingPreferenceFragment.class.getSimpleName();
 
@@ -32,6 +35,19 @@ public class FollowingPreferenceFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         // Add visualizer preferences, defined in the XML file in res->xml->preferences_squawker
         addPreferencesFromResource(R.xml.following_squawker);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        boolean newValue = sharedPreferences.getBoolean(key, true);
+
+        if (newValue) {
+            FirebaseMessaging.getInstance().subscribeToTopic(key);
+        } else {
+            FirebaseMessaging.getInstance().unsubscribeFromTopic(key);
+        }
+
+
     }
     // TODO (2) When a SharedPreference changes, check which preference it is and subscribe or
     // un-subscribe to the correct topics.
@@ -44,5 +60,19 @@ public class FollowingPreferenceFragment extends PreferenceFragmentCompat {
 
     // TODO (3) Make sure to register and unregister this as a Shared Preference Change listener, in
     // onCreate and onDestroy.
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getPreferenceScreen().getSharedPreferences()
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getPreferenceScreen().getSharedPreferences()
+                .unregisterOnSharedPreferenceChangeListener(this);
+    }
 
 }
