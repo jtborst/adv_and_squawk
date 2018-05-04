@@ -25,6 +25,16 @@
             android:authorities="android.example.com.squawker.provider.provider"
             android:exported="false" />
 
+        <!-- TODO (5) Add your new service here, with an intent filter for action
+        com.google.firebase.INSTANCE_ID_EVENT" -->
+        <service
+            android:name=".fcm.IdLogger"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+
         <activity
             android:name=".following.FollowingPreferenceActivity"
             android:parentActivityName=".MainActivity">
@@ -32,9 +42,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-
-        <!-- TODO (5) Add your new service here, with an intent filter for action
-        com.google.firebase.INSTANCE_ID_EVENT" -->
 
     </application>
 
