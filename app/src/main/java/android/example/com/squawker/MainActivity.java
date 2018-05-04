@@ -1,26 +1,29 @@
 /*
-* Copyright (C) 2017 The Android Open Source Project
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*  	http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  	http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package android.example.com.squawker;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.example.com.squawker.following.FollowingPreferenceActivity;
 import android.example.com.squawker.provider.SquawkContract;
 import android.example.com.squawker.provider.SquawkProvider;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -63,6 +66,23 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "SQUAWK_MESSAGE_CHANNEL";
+            String description = "SQUAWK_MESSAGE_CHANNEL";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("SQUAWK_MESSAGE_CHANNEL", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+
         setContentView(R.layout.activity_main);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.squawks_recycler_view);
@@ -90,27 +110,27 @@ public class MainActivity extends AppCompatActivity implements
 
 
         // TODO (1) Make a new Service in the fcm package that extends from FirebaseMessagingService.
-            // TODO (2) As part of the new Service - Override onMessageReceived. This method will
-            // be triggered whenever a squawk is received. You can get the data from the squawk
-            // message using getData(). When you send a test message, this data will include the
-            // following key/value pairs:
-                // test: true
-                // author: Ex. "TestAccount"
-                // authorKey: Ex. "key_test"
-                // message: Ex. "Hello world"
-                // date: Ex. 1484358455343
-            // TODO (3) As part of the new Service - If there is message data, get the data using
-            // the keys and do two things with it :
-                // 1. Display a notification with the first 30 character of the message
-                // 2. Use the content provider to insert a new message into the local database
-                // Hint: You shouldn't be doing content provider operations on the main thread.
-                // If you don't know how to make notifications or interact with a content provider
-                // look at the notes in the classroom for help.
+        // TODO (2) As part of the new Service - Override onMessageReceived. This method will
+        // be triggered whenever a squawk is received. You can get the data from the squawk
+        // message using getData(). When you send a test message, this data will include the
+        // following key/value pairs:
+        // test: true
+        // author: Ex. "TestAccount"
+        // authorKey: Ex. "key_test"
+        // message: Ex. "Hello world"
+        // date: Ex. 1484358455343
+        // TODO (3) As part of the new Service - If there is message data, get the data using
+        // the keys and do two things with it :
+        // 1. Display a notification with the first 30 character of the message
+        // 2. Use the content provider to insert a new message into the local database
+        // Hint: You shouldn't be doing content provider operations on the main thread.
+        // If you don't know how to make notifications or interact with a content provider
+        // look at the notes in the classroom for help.
 
 
         // TODO (5) You can delete the code below for getting the extras from a notification message,
         // since this was for testing purposes and not part of Squawker.
-        
+
         // Gets the extra data from the intent that started the activity. For *notification*
         // messages, this will contain key value pairs stored in the *data* section of the message.
         Bundle extras = getIntent().getExtras();
